@@ -4,48 +4,6 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <pthread.h>
-/*
-//©w®ÉÄ²µo
- 
-UINT_PTR SetTimer(
-  HWND      hWnd,
-  UINT_PTR  nIDEvent,
-  UINT      uElapse,
-  TIMERPROC lpTimerFunc
-);
-hWnd¬°NULL«h nIDEvent¬°0 
-uElapse©w®É®Éªø³]©w ³æ¦ì¬°²@¬í 
-lpTimerFunc¬°NULL«h¨ç¦¡·|©w®É¦^¶ÇWM_TIMER°T®§ 
-
-BOOL KillTimer(//¨C¦¸©w®ÉÄ²µo«á¦AÄ²µo»İ¥ıKillTimer 
-  HWND     hWnd,
-  UINT_PTR uIDEvent
-);
-
-//¼·©ñ­µ¼Ö 
-BOOL PlaySound(
-   LPCTSTR pszSound,//­µÀÉ¦W.wav 
-   HMODULE hmod,//NULL,°£«D­n¼·©ñ±M®×­µ¼Ö 
-   DWORD   fdwSound//flag,»İ­n¦h­Óflag®É¥Î¥i|¹j¶},±`¥Îªº¦³¥H¤U´XºØ 
-);
-
-SND_FILENAME ÀÉ¦W(?) 
-SND_ASYNC «D¦P¨B(¼·©ñ­µ¼Ö®Éµ{¦¡¤£·|°±¦í,·|Ä~Äò°õ¦æ) 
-SND_SYNC ¦P¨B,¥H¦¹Ãş±À 
-SND_LOOP ´`Àô¼½©ñ
-¼½©ñ­µ¼Ö«e¶·¦Ü¤u¨ã->½sÄ¶¾¹¿ï¶µ¼W¥[¥H¤U«ü¥O:-lwinmm
-©Î¥[¤J #pragma comment(lib,"Winmm.lib") ¦Ü¥Dµ{¦¡
- 
-mciSendString(File,NULL,0,NULL);
-
-*/
-/*
-¥D­n½m²ßªº¤º«Ø¥\¯à: (¬Ò»İ­nwindows.h)
-SetTimer
-KillTimer
-PlaySound
-mciSendString
-*/
 
 enum block_type{
 	O,J,L,I,Z,S,T
@@ -176,7 +134,7 @@ int block_cur[block_h][block_w]={0};
 int next_block[BLOCK_QUEUE][block_h][block_w]={0};
 
 int quit=0;
-int speed=FIRST_SPEED;//©w®É¾¹¶¡¹j
+int speed=FIRST_SPEED;
 int level=1;
 int clear_number=0;
 int music_switch=1;
@@ -203,7 +161,7 @@ static void close_timer(){
 	KillTimer(NULL,timerId);
 }
 
-void gotoxy(int x,int y){//²¾°Ê´å¼Ğ¦ì¸m 
+void gotoxy(int x,int y){
 	COORD loc;
 	loc.X=x;
 	loc.Y=y;
@@ -214,20 +172,20 @@ void Music(char c[],int n){
 	switch(n)
 	{
 		case 2:
-			//´`?¼½©ñ­µ?¡A¦b¹J¨ì¤U¤@¦¸¼½©ñ­µ??³Q¥´? 
-			PlaySound(TEXT(c),NULL,SND_FILENAME | SND_ASYNC | SND_LOOP);	break;
+			PlaySound(TEXT(c),NULL,SND_FILENAME | SND_ASYNC | SND_LOOP);
+			break;
 		
 		case 1:
-			//¼½©ñ¤@¦¸­µ?¡A¦b¹J¨ì¤U¤@¦¸¼½©ñ­µ??³Q¥´? 
-			PlaySound(TEXT(c),NULL,SND_FILENAME | SND_ASYNC);				break;
+			PlaySound(TEXT(c),NULL,SND_FILENAME | SND_ASYNC);
+			break;
 			
 		case 0:
-			//°±¤î¼½©ñ­I´º­µ? 
-			PlaySound(NULL,NULL,SND_FILENAME);								break;
+			PlaySound(NULL,NULL,SND_FILENAME);
+			break;
 	}
 }
 
-void BGM(char c[],int n){//0°±¤î¼½©ñ¡A1¼½©ñ¤@¦¸¡A2­«Î`¼½©ñ
+void BGM(char c[],int n){
 	char File[100];
 	if(n==1||n==2)	strcpy(File,"play ");
 	else if(n==0)	strcpy(File,"close ");
@@ -236,7 +194,7 @@ void BGM(char c[],int n){//0°±¤î¼½©ñ¡A1¼½©ñ¤@¦¸¡A2­«Î`¼½©ñ
 	mciSendString(File,NULL,0,NULL);
 }
 
-//////////PRINT//////////
+
 
 void printxy(char *str,int x,int y){
 	gotoxy(x,y);
@@ -288,10 +246,9 @@ void copy_block(int block_s[][block_w],int block_d[][block_w]){
 }
 
 void print_rule(){
-	printxy("¤WÁä±ÛÂà¡A¥ª¥kÁä²¾°Ê¡A¤UÁä¥[³t¡AªÅ¥ÕÁä²¾¨ì©³³¡¡AZ hold/¥æ´«¤è¶ô",0,HEIGHT+1);
-	printxy("P¼È°±¡AR­«·s¶}©l¡AQ°h¥X¡AB¶}±Ò/Ãö³¬­µ¼Ö¡AM¶}±Ò/Ãö³¬­µ®Ä",0,HEIGHT+2);
-	printxy("¨C®ø°£10¦CÃø«×¼W¥[¤@¯Å(¤U¸¨³t«×¥[§Ö)¡Aª½¦Üµ¥¯Å10",0,HEIGHT+3);
-	//printxy("",0,HEIGHT+4);
+	printxy("ä¸Šéµæ—‹è½‰ï¼Œå·¦å³éµç§»å‹•ï¼Œä¸‹éµåŠ é€Ÿï¼Œç©ºç™½éµç§»åˆ°åº•éƒ¨ï¼ŒZ hold/äº¤æ›æ–¹å¡Š",0,HEIGHT+1);
+	printxy("Pæš«åœï¼ŒRé‡æ–°é–‹å§‹ï¼ŒQé€€å‡ºï¼ŒBé–‹å•Ÿ/é—œé–‰éŸ³æ¨‚ï¼ŒMé–‹å•Ÿ/é—œé–‰éŸ³æ•ˆ",0,HEIGHT+2);
+	printxy("æ¯æ¶ˆé™¤10åˆ—é›£åº¦å¢åŠ ä¸€ç´š(ä¸‹è½é€Ÿåº¦åŠ å¿«)ï¼Œç›´è‡³ç­‰ç´š10",0,HEIGHT+3);
 }
 
 void print_level(){
@@ -301,11 +258,11 @@ void print_level(){
 	gotoxy(WIDTH+2,HEIGHT-3);
 	printf("[");
 	if(clear_number<=10){
-		for(i=0;i<clear_number;i++)printf("¡½");
-		for(i=clear_number;i<10;i++)printf("¡¼"); 
+		for(i=0;i<clear_number;i++)printf("â– ");
+		for(i=clear_number;i<10;i++)printf("â–¡"); 
 	}
 	else{
-		for(i=0;i<10;i++)printf("¡½");
+		for(i=0;i<10;i++)printf("â– ");
 	}
 	printf("]");
 }
@@ -313,10 +270,10 @@ void print_level(){
 void print_sound(){
 	printxy("        ",WIDTH+7,0);
 	printxy("        ",WIDTH+7,1);
-	printxy("­µ¼Ö:",WIDTH+7,0);
+	printxy("éŸ³æ¨‚:",WIDTH+7,0);
 	if(bgm_switch==0)printf("OFF");
 	else printf("ON");
-	printxy("­µ®Ä:",WIDTH+7,1);
+	printxy("éŸ³æ•ˆ:",WIDTH+7,1);
 	if(music_switch==0)printf("OFF");
 	else printf("ON");
 }
@@ -330,7 +287,7 @@ void print_menu(){
 			printxy("o",i,j);
 		}
 	}
-	//gotoxy(0,5);
+	
 	for(i=0;i<18;i++){
 		for(j=0;j<18;j++){
 			if(title_TETRIS[j][i]=='o')printxy("o",i,j+2);
@@ -375,7 +332,7 @@ void print_menu(){
 	gotoxy(0,HEIGHT+1);
 }
 
-//////////PRINT//////////
+
 
 void erase_shadow(int block[][block_w],int x,int y){
 	int shadow_y=y;
@@ -472,10 +429,7 @@ int isCollision(int x,int y){
 	int left_margin=0,right_margin=0,top_margin=0,bottom_margin=0;
 	get_block_top_bottom_margin(&top_margin,&bottom_margin);
 	get_block_left_right_margin(&left_margin,&right_margin);
-	if(y+block_h>HEIGHT+bottom_margin)return 1;//¤U­±Ãä¬É¸I¼² 
-	if(x<0-left_margin)return 1;//¥ªÃäÃä¬É¸I¼²
-	if(x+block_w>WIDTH+right_margin)return 1;//¥kÃäÃä¬É¸I¼² 
-	if(y<0-top_margin)return 1;
+	if(y+block_h>HEIGHT+bottom_margin||x<0-left_margin||x+block_w>WIDTH+right_margin||y<0-top_margin)return 1;
 	
 	int w,h;
 	for(w=0;w<block_w;w++){
@@ -789,7 +743,7 @@ void game_over(time_t start){
 	printf("[%.2d:%.2d:%.2d]",hour,minute,second);
 	gotoxy(0,HEIGHT+5);
 	Sleep(1000);
-	printf("[R]­«·s¶}©l/[Q]°h¥X\n");
+	printf("[R]é‡æ–°é–‹å§‹/[Q]é€€å‡º\n");
 	char ch;
 	while(ch!='r'&&ch!='R'&&ch!='q'&&ch!='Q'){
 		ch=getch();
@@ -806,9 +760,9 @@ void game_over(time_t start){
 	}
 }
 
-void setCursorVisable(int v){//³]©w´å¼Ğ¬O§_¥iµø 
-	CONSOLE_CURSOR_INFO cursor_info = {100,v};//µ²ºcªì©l¤Æ(­×§ï°Ñ¼Æ) 
-	SetConsoleCursorInfo(hand,&cursor_info);//³z¹L HANDLEÅÜ¼Æ ¤Î ¤W¤@¦æªºµ²ºc(«ü¼Ğ) ¨Ó ±±¨î´å¼Ğ
+void setCursorVisable(int v){ 
+	CONSOLE_CURSOR_INFO cursor_info = {100,v};
+	SetConsoleCursorInfo(hand,&cursor_info);
 }
 
 void hold(){
@@ -872,25 +826,25 @@ int key_control(){
 		}
 		if(kbhit()!=0){
 			ch=getch();
-			if(ch=='z'||ch=='Z'){//hold
+			if(ch=='z'||ch=='Z'){
 				if(hold_chance==1){
 					hold();
 					hold_chance=0;
 				}
 			}
-			if(ch=='b'||ch=='B'){//bÃö³¬/¶}±Ò­µ¼Ö(0&2)
+			if(ch=='b'||ch=='B'){
 				bgm_switch--;
 				bgm_switch*=-1;
 				bgm_switch++;
 				BGM("bgm.mp3",bgm_switch);
 				print_sound();
 			}
-			if(ch=='m'){//mÃö³¬/¶}±Ò­µ®Ä(0&1)
+			if(ch=='m'){
 				music_switch+=temp_music_switch;
 				temp_music_switch*=-1;
 				print_sound();
 			}
-			if(ch=='p'){//¼È°±p
+			if(ch=='p'){
 				pause_bgm_switch=bgm_switch;
 				BGM("bgm.mp3",0);
 				printxy("[PAUSE]",WIDTH/2-3,HEIGHT/2);
@@ -899,16 +853,16 @@ int key_control(){
 				BGM("bgm.mp3",pause_bgm_switch);
 				print_surface();
 			}
-			if(ch=='q'||ch=='Q'){//Qµ²§ô 
+			if(ch=='q'||ch=='Q'){
 				gotoxy(0,HEIGHT+6);
 				return 0;
 			}
-			if(ch=='r'||ch=='R'){//R­«·s¶}©l
+			if(ch=='r'||ch=='R'){
 				restart();
 			}
 			
 			switch (ch){
-				case 72://up:rotate	
+				case 72:	
 					Music("bottom.wav",music_switch);
 					erase_shadow(block_cur,cur_x,cur_y);
 					erase_block(block_cur,cur_x,cur_y);
@@ -945,7 +899,7 @@ int key_control(){
 					print_shadow(block_cur,cur_x,cur_y);
 					print_block(block_cur,cur_x,cur_y);
 					break;
-				case 80://down:down faster
+				case 80:
 					if(isCollision(cur_x,cur_y+1)==0){
 						Music("bottom.wav",music_switch);
 						erase_shadow(block_cur,cur_x,cur_y);
@@ -955,7 +909,7 @@ int key_control(){
 						print_block(block_cur,cur_x,cur_y);
 					}
 					break;
-				case 75://left:left
+				case 75:
 					if(isCollision(cur_x-1,cur_y)==0){
 						Music("bottom.wav",music_switch);
 						erase_shadow(block_cur,cur_x,cur_y);
@@ -965,7 +919,7 @@ int key_control(){
 						print_block(block_cur,cur_x,cur_y);
 					}
 					break;
-				case 77://right:right
+				case 77:
 					if(isCollision(cur_x+1,cur_y)==0){
 						Music("bottom.wav",music_switch);
 						erase_shadow(block_cur,cur_x,cur_y);
@@ -975,7 +929,7 @@ int key_control(){
 						print_block(block_cur,cur_x,cur_y);
 					}
 					break;
-				case 32://ªÅ¥ÕÁäª½±µ¤U¸¨ 
+				case 32:
 					Music("bottom.wav",music_switch);
 					erase_block(block_cur,cur_x,cur_y);
 					while(isCollision(cur_x,cur_y+1)==0)cur_y++;
@@ -989,27 +943,18 @@ int key_control(){
 
 int main() {
 	
-//	while(1){
-
-		srand(time(NULL));
-		hand = GetStdHandle(STD_OUTPUT_HANDLE);//¨Ï¥ÎHANDLEÅÜ¼Æ´£¨úÅv­­ 
-		setCursorVisable(0);
-		
-		//print_menu();
-		
-		//1000 \o/
-		//system("pause");
-		//system("cls");
-		
-		int i,a,b;
-		for(i=0;i<=BLOCK_QUEUE;i++)make_new_block();
-		PRINT_INIT();
-		BGM("bgm.mp3",bgm_switch);
-		//PlaySound(TEXT("bgm.wav"),NULL,SND_FILENAME|SND_ASYNC|SND_LOOP|SND_NOSTOP);
-		print_block(block_cur,cur_x,cur_y);
-		print_shadow(block_cur,cur_x,cur_y);
-		set_timer(speed);
-		key_control();
-		
-		return 0;
+	srand(time(NULL));
+	hand = GetStdHandle(STD_OUTPUT_HANDLE);
+	setCursorVisable(0);
+	
+	int i,a,b;
+	for(i=0;i<=BLOCK_QUEUE;i++)make_new_block();
+	PRINT_INIT();
+	BGM("bgm.mp3",bgm_switch);
+	print_block(block_cur,cur_x,cur_y);
+	print_shadow(block_cur,cur_x,cur_y);
+	set_timer(speed);
+	key_control();
+	
+	return 0;
 }
